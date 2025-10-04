@@ -42,6 +42,7 @@ if uploaded_file:
         st.subheader("🔍 Top 10 ảnh giống nhất (Histogram):")
         cols = st.columns(5)
         for i, (path, label, dist) in enumerate(results):
+            path = path.replace("\\", "/") # Chuẩn hóa đường dẫn cho mọi OS
             with cols[i % 5]:
                 img = cv2.imread(path)
                 st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB),
