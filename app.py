@@ -1,11 +1,12 @@
 import streamlit as st
 import cv2
-import tempfile
+import numpy as np
 import os
 from glob import glob
 import torch
 import clip
 from PIL import Image
+from io import BytesIO
 
 # --- Import logic ---
 from hist import extract_histogram, load_database, find_similar_images
@@ -22,14 +23,11 @@ method = st.radio("Chọn phương pháp tìm ảnh giống:", ("Histogram", "CL
 
 uploaded_file = st.file_uploader("Tải ảnh lên", type=["jpg", "png", "jpeg"])
 
-if uploaded_file:
-    # Lưu file tạm
-    tfile = tempfile.NamedTemporaryFile(delete=False)
-    tfile.write(uploaded_file.read())
-    tfile.close()
+if uploaded_file is not None:
+    # Đọc ảnh trực tiếp từ memory (không ghi ra file)
+    file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
+    image = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-    # Đọc ảnh upload
-    image = cv2.imread(tfile.name)
     if image is None:
         st.error("Không đọc được ảnh upload.")
         st.stop()
@@ -39,8 +37,8 @@ if uploaded_file:
 
     if method == "Histogram":
         # --- Histogram ---
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        query_hist = extract_histogram(image)
+        rgb_img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        query_hist = extract_histogram(rgb_img)
         dataset = load_database()
         results = find_similar_images(query_hist, dataset, top_k=10)
 
@@ -50,11 +48,9 @@ if uploaded_file:
         for i, (path, label, dist) in enumerate(results):
             path = path.replace("\\", "/")
             if not os.path.exists(path):
-                st.warning(f"❌ Không tìm thấy: {path}")
                 continue
             img = cv2.imread(path)
             if img is None:
-                st.warning(f"⚠️ Không đọc được ảnh: {path}")
                 continue
             with cols[i % 5]:
                 st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB),
@@ -81,8 +77,10 @@ if uploaded_file:
             if os.path.isdir(folder_path):
                 all_img_path[folder] = glob(os.path.join(folder_path, "*.jpg"))
 
-        # Query ảnh bằng CLIP
-        pil_img = Image.open(tfile.name).convert("RGB")
+        # Chuyển ảnh sang PIL để CLIP preprocess
+        pil_img = Image.open(BytesIO(file_bytes)).convert("RGB")
+
+        # Search ảnh
         scores, idxs = faiss_index.image_search(pil_img, top_k=10)
         top_paths = faiss_index.Return_images(idxs, all_img_path)
 
@@ -92,11 +90,9 @@ if uploaded_file:
         for i, (path, score) in enumerate(zip(top_paths, scores)):
             path = path.replace("\\", "/")
             if not os.path.exists(path):
-                st.warning(f"❌ Không tìm thấy: {path}")
                 continue
             img = cv2.imread(path)
             if img is None:
-                st.warning(f"⚠️ Không đọc được ảnh: {path}")
                 continue
             with cols[i % 5]:
                 st.image(cv2.cvtColor(img, cv2.COLOR_BGR2RGB),
