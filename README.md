@@ -15,14 +15,15 @@ project_root/
 │
 ├── 📄 image_hist.db # SQLite database storing image histograms
 │
-├── 📄 myFaiss.py # build & search FAISS index
+├── 📄 myFaiss.py #  search FAISS index
 │
 ├── 📄 hist.py # extract color histogram features and save to DB
 │
-├── 📒 Histogram_Lab02.ipynb # CS406 Lab02: extract histogram feature +
+├── 📒 23521208_Histogram_Lab02.ipynb # CS406 Lab02: extract histogram feature + find similar images
 │
-├── 📒 Clip.ipynb # CLIP-based retrieval or FAISS demo notebook
+├── 📒 Clip.ipynb #  build FAISS demo notebook ( include create id2img.json and bin file)
 │
 └── 📄 requirements.txt # project dependencies
 ```
+
 
