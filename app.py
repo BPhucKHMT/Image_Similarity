@@ -16,8 +16,24 @@ from myFaiss import myFaiss
 st.title("🎨 Image Similarity Search Demo")
 
 # Chọn thiết bị và model CLIP
+
+@st.cache_resource
+def load_clip_model():
+    model, preprocess = clip.load("ViT-B/32", device=device)
+    return model, preprocess
+
+@st.cache_resource
+def load_faiss_index(device, _preprocess):
+    return myFaiss(
+        bin_clip_file="faiss_clip.bin",
+        feature_shape=512,
+        preprocess=_preprocess,
+        device=device
+    )
+
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
-clip_model, preprocess = clip.load("ViT-B/32", device=device)
+clip_model, preprocess = load_clip_model()
 
 method = st.radio("Chọn phương pháp tìm ảnh giống:", ("Histogram", "CLIP+Faiss"))
 
@@ -63,12 +79,7 @@ if uploaded_file is not None:
             st.error("❌ Thiếu file faiss_clip.bin — cần build index trước.")
             st.stop()
 
-        faiss_index = myFaiss(
-            bin_clip_file="faiss_clip.bin",
-            feature_shape=512,
-            preprocess=preprocess,
-            device=device
-        )
+        faiss_index = load_faiss_index(device, preprocess)
 
         # Tải dataset
         all_img_path = {}

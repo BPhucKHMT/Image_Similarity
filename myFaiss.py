@@ -9,7 +9,7 @@ from PIL import Image
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import faiss
-
+import json
 
 
 class myFaiss:
@@ -34,11 +34,9 @@ class myFaiss:
         return scores , idx_image
     def Return_images (self, idxs, all_img_path):
         paths = []
-        for idx in idxs:
-            count = 0
-            for folder in all_img_path:
-                if count + len(all_img_path[folder]) > idx:
-                    paths.append(all_img_path[folder][idx - count])
-                    break
-                count += len(all_img_path[folder])
+        id2img = json.load(open('id2img.json', 'r'))
+        for i in idxs:
+            idx = str(i)
+            img_path = id2img[idx]
+            paths.append(img_path)
         return paths
