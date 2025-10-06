@@ -5,7 +5,7 @@ open terminal
 streamlit run app.py
 
 ## Structure
-'''
+```
 project_root/
 │
 ├── 📂 dataset/ # dataset of images grouped by class
@@ -24,4 +24,5 @@ project_root/
 ├── 📒 Clip.ipynb # CLIP-based retrieval or FAISS demo notebook
 │
 └── 📄 requirements.txt # project dependencies
-'''
+```
+
