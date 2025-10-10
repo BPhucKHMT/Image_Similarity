@@ -1,8 +1,8 @@
 ﻿# Image_Similarity
 ## How to start
-pip install -r requirements.txt
-open terminal
-streamlit run app.py
+- pip install -r requirements.txt
+- open terminal
+- streamlit run app.py
 
 ## Structure
 ```
@@ -25,5 +25,6 @@ project_root/
 │
 └── 📄 requirements.txt # project dependencies
 ```
+
 
 
